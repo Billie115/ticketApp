@@ -1,58 +1,86 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Help / Ticket Tracker
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A ticketing system built with **Laravel 13** that lets a company offer ticket submission and management to both its customers and its staff. Customers can submit and track issues without an account; staff manage those tickets from an authenticated dashboard.
 
-## About Laravel
+This project is being developed as a learning project (part of a degree program) to practice core Laravel concepts: migrations, Eloquent relationships, validation, routing, Blade views, file uploads, mail, and authentication.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Tech Stack
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **Framework:** Laravel 13
+- **Language:** PHP 8.4
+- **Database:** SQLite (portable to MySQL with a config change)
+- **Views:** Blade templates
+- **Local environment:** Laravel Herd
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Data Model
 
-## Learning Laravel
+The system is built around four related entities.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- **Category** — the type of issue (e.g. Technical problem, Account, Payment). Has many tickets.
+- **Ticket** — the core entity. Belongs to a category, is optionally assigned to a staff user, and has many comments and attachments. Each ticket carries a human-friendly `tracking_code` and an unguessable `uuid` used in public links.
+- **Comment** — a message on a ticket. Belongs to a ticket, and optionally to a user. A `null` user means the comment came from a customer (no login); a set user means it came from a staff member.
+- **Attachment** — an uploaded file linked to a ticket. The file itself is stored on disk; only its path and metadata live in the database.
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Ticket fields
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+| Field | Description |
+|-------|-------------|
+| `uuid` | Unguessable identifier used in public URLs |
+| `tracking_code` | Short, human-readable code (e.g. `Tick-DQ2ZTF`) |
+| `title` | Ticket title |
+| `description` | Detailed description (optional) |
+| `email` | Customer email (where the tracking link is sent) |
+| `category_id` | The category the ticket belongs to |
+| `assigned_to` | The staff member handling it (null until assigned) |
+| `status` | `in_progress`, `completed`, or `cancelled` |
 
-## Agentic Development
+## Features
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+### Implemented
+
+- **Public ticket submission** — a login-free form where a customer submits a title, category, email, and description. Input is validated server-side before anything is saved.
+- **Automatic identifiers** — every new ticket generates its own `uuid` and `tracking_code` automatically on creation.
+- **Public ticket view** — a per-ticket page reached through the ticket's `uuid`. It shows all ticket fields and its comments. The unguessable uuid prevents customers from browsing other people's tickets; an unknown uuid returns a 404.
+- **Customer comments** — customers can add comments to their ticket directly from the ticket page, without an account.
+
+### Planned
+
+- **File attachments** — allow customers to upload files (PDF, PNG, JPG, etc.) with a ticket, stored on disk with references kept in the database.
+- **Email notifications** — email the customer a link to open and track their ticket after submission.
+- **Staff authentication** — login for company employees.
+- **Staff dashboard** — a list of tickets with filters for **status** and **tracking code**.
+- **Ticket management** — from an individual ticket, staff can change status, assign the ticket, upload files, and add comments.
+- **Automated tests** — feature tests covering submission and the core flows.
+
+## Getting Started
 
 ```bash
-composer require laravel/boost --dev
+# Install dependencies
+composer install
 
-php artisan boost:install
+# Create your environment file
+cp .env.example .env
+php artisan key:generate
+
+# Create the SQLite database file (if it doesn't exist)
+# then build the schema and seed initial categories
+php artisan migrate:fresh --seed
+
+# Run the development server
+php artisan serve
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+The app will be available at `http://127.0.0.1:8000`.
 
-## Contributing
+### Useful routes
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+| Method | URL | Purpose |
+|--------|-----|---------|
+| GET | `/submit` | Show the ticket submission form |
+| POST | `/submit` | Store a new ticket |
+| GET | `/ticket/{uuid}` | View a ticket by its uuid |
+| POST | `/ticket/{uuid}/comment` | Add a customer comment |
 
-## Code of Conduct
+## Project Status
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Core public-facing flow (submit → view → comment) is complete. Attachments, email, and the full staff side are in progress.
