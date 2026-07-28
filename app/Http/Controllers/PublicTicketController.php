@@ -17,7 +17,8 @@ class PublicTicketController extends Controller
         ]);
     }
 
-    public function store(Request $request){
+    public function store(Request $request)
+    {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
@@ -32,6 +33,29 @@ class PublicTicketController extends Controller
             'description' => $validated['description'] ?? null,
         ]);
 
-        return 'Το Ticket δημιουργήθηκε, Tracking code:' . $ticket->tracking_code;
-    } 
+        return redirect('/ticket/' . $ticket->uuid);
+    }
+
+    public function show(Ticket $ticket)
+    {
+        $ticket->load('category', 'comments');
+
+        return view('tickets.show',[
+            'ticket' => $ticket,
+        ]);
+    }
+
+    public function addComment(Request $request, Ticket $ticket)
+    {
+        $validated = $request->validate([
+            'body' => 'required|string',
+        ]);
+
+        $ticket->comments()->create([
+            'body' => $validated['body'],
+            'user_id' => null,
+        ]);
+
+        return redirect('/ticket/' . $ticket->uuid);
+    }
 }

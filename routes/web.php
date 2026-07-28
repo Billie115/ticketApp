@@ -9,3 +9,5 @@ Route::get('/', function () {
 
 Route::get('/submit', [PublicTicketController::class, 'create']);
 Route::post('/submit', [PublicTicketController::class, 'store']);
+Route::get('/ticket/{ticket:uuid}', [PublicTicketController::class, 'show']);
+Route::post('ticket/{ticket:uuid}/comment', [PublicTicketController::class, 'addComment']);
