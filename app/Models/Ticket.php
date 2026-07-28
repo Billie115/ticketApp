@@ -8,17 +8,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Ticket extends Model
 {
-    protected $fillable = [
-        'uuid',
-        'tracking_code',
-        'title',
-        'description',
-        'email',
-        'category_id',
-        'assigned_to',
-        'status',
-    ];
-
+    protected $guarded = [];
+    
     protected static function booted():void
     {
         static::creating(function(Ticket $ticket){
