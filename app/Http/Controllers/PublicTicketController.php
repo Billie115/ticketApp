@@ -47,6 +47,8 @@ class PublicTicketController extends Controller
             ]);
         }
 
+        \Illuminate\Support\Facades\Mail::to($ticket->email)->send(new \App\Mail\TicketCreated($ticket));
+
         return redirect('/ticket/' . $ticket->uuid);
     }
 
