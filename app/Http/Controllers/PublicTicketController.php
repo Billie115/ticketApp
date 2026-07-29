@@ -24,14 +24,28 @@ class PublicTicketController extends Controller
             'category_id' => 'required|exists:categories,id',
             'email' => 'required|email',
             'description' => 'nullable|string',
+            'attachments' => 'nullable|array',
+            'attachments.*' => 'file|mimes:pdf,png,jpg,jpeg|max:10240'
         ]);
         
+    //dd($request->allFiles());
+
         $ticket = Ticket::create([
             'title' => $validated['title'],
             'category_id' => $validated['category_id'],
             'email' => $validated['email'],
             'description' => $validated['description'] ?? null,
         ]);
+
+        foreach ($request->file('attachments', []) as $file){
+            $path = $file->store('attachments', 'public');
+
+            $ticket->attachments()->create([
+                'path'=> $path,
+                'original_name' => $file->getClientOriginalName(),
+                'mime_type' => $file->getClientMimeType(),
+            ]);
+        }
 
         return redirect('/ticket/' . $ticket->uuid);
     }

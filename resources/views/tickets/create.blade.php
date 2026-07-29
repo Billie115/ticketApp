@@ -8,7 +8,17 @@
 <body>
     <h1>Υποβολή νέου αιτήματος</h1>
 
-    <form action="/submit" method="POST">
+    @if ($errors->any())
+        <div style="color: red; border: 1px solid red; padding: 10px;">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    <form action="/submit" method="POST" enctype="multipart/form-data">
         @csrf
 
         <div>
@@ -30,6 +40,10 @@
         <div>
             <label for="descreption">Περιγραφή</label>
             <textarea name="description" id="description"></textarea>
+        </div>
+        <div>
+            <label for="attachments">Αρχεία (pdf, εικόνες)</label>
+            <input type="file" name="attachments[]" id="attachments" multiple>
         </div>
         <button type="submit">Υποβολή</button>
     </form>

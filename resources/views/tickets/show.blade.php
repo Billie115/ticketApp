@@ -16,6 +16,20 @@
     <h2>Περιγραφή</h2>
     <p>{{ $ticket->description }}</p>
 
+    <h2>Αρχεία</h2>
+    @forelse ($ticket->attachments as $attachment)
+        <div>
+            <a href="{{ asset('storage/' . $attachment->path) }}" target="_blank">
+            {{ $attachment->original_name }}
+            </a>
+            <br>
+            <img src="{{ asset('storage/' . $attachment->path) }}" alt="" style="height: 300px">
+            <br>
+        </div>
+    @empty
+        <p>Δεν υπάρχουν αρχεία.</p>
+    @endforelse
+
     <h2>Σχόλια</h2>
     @forelse ($ticket->comments as $comments)
         <div>
