@@ -54,7 +54,7 @@ class PublicTicketController extends Controller
 
     public function show(Ticket $ticket)
     {
-        $ticket->load('category', 'comments');
+        $ticket->load('category', 'comments.user');
 
         return view('tickets.show',[
             'ticket' => $ticket,

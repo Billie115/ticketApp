@@ -1,50 +1,72 @@
-<!DOCTYPE html>
-<html lang="el">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ticket {{ $ticket->tracking_code }}</title>
-</head>
-<body>
-    <h1>Αίτημα: {{ $ticket->title }}</h1>
+@extends('layouts.app')
 
-    <p><strong>Κωδικός:</strong> {{ $ticket->tracking_code }}</p>
-    <p><strong>Κατηγορία:</strong> {{ $ticket->category->name }}</p>
-    <p><strong>Κατάσταση:</strong> {{ $ticket->status }}</p>
-    <p><strong>Email:</strong> {{ $ticket->email }}</p>
+@section('title', 'Αίτημα ' . $ticket->tracking_code)
 
-    <h2>Περιγραφή</h2>
-    <p>{{ $ticket->description }}</p>
+@section('content')
 
-    <h2>Αρχεία</h2>
-    @forelse ($ticket->attachments as $attachment)
-        <div>
-            <a href="{{ asset('storage/' . $attachment->path) }}" target="_blank">
-            {{ $attachment->original_name }}
-            </a>
-            <br>
-            <img src="{{ asset('storage/' . $attachment->path) }}" alt="" style="height: 300px">
-            <br>
-        </div>
-    @empty
-        <p>Δεν υπάρχουν αρχεία.</p>
-    @endforelse
+    <h2 style="margin-top: 0;">{{ $ticket->title }}</h2>
 
-    <h2>Σχόλια</h2>
-    @forelse ($ticket->comments as $comments)
-        <div>
-            <p>{{ $comments->body }}</p>
-            <small>{{ $comments->created_at }}</small>
-        </div>
+    <fieldset style="margin-bottom: 16px;">
+        <legend>Στοιχεία</legend>
+        <p><strong>Κωδικός:</strong> {{ $ticket->tracking_code }}</p>
+        <p><strong>Κατηγορία:</strong> {{ $ticket->category->name }}</p>
+        <p><strong>Κατάσταση:</strong> {{ $ticket->status }}</p>
+        <p><strong>Email:</strong> {{ $ticket->email }}</p>
+    </fieldset>
+
+    <fieldset style="margin-bottom: 16px;">
+        <legend>Περιγραφή</legend>
+        <p>{{ $ticket->description }}</p>
+    </fieldset>
+
+    <fieldset style="margin-bottom: 16px;">
+        <legend>Αρχεία</legend>
+        @forelse ($ticket->attachments as $attachment)
+            <div style="margin-bottom: 10px;">
+                @if (str_starts_with($attachment->mime_type, 'image/'))
+                    <div style="padding: 4px; background: #fff; border: 1px solid #999; display: inline-block;">
+                        <a href="{{ asset('storage/' . $attachment->path) }}" target="_blank">
+                            <img src="{{ asset('storage/' . $attachment->path) }}"
+                                 alt="{{ $attachment->original_name }}"
+                                 style="max-width: 200px; max-height: 200px; display: block;">
+                        </a>
+                    </div>
+                    <br>
+                    <small>{{ $attachment->original_name }}</small>
+                @else
+                    <a href="{{ asset('storage/' . $attachment->path) }}" target="_blank">
+                        📄 {{ $attachment->original_name }}
+                    </a>
+                @endif
+            </div>
         @empty
-        <p>Δεν υπάρχουν σχόλια ακόμα.</p>
-    @endforelse
+            <p>Δεν υπάρχουν αρχεία.</p>
+        @endforelse
+    </fieldset>
 
-    <h3>Προσθήκη σχολίου</h3>
-    <form action="/ticket/{{ $ticket->uuid}}/comment" method="POST">
-        @csrf
-        <textarea name="body" required></textarea>
-        <button type="submit">Αποστολή</button>
-    </form>
-</body>
-</html>
+    <fieldset style="margin-bottom: 16px;">
+        <legend>Σχόλια</legend>
+        @forelse ($ticket->comments as $comments)
+            <div style="margin-bottom: 8px; padding: 6px; background: #fff; border: 1px solid #ccc;">
+                <p style="margin: 0;">{{ $comments->body }}</p>
+                <small style="color: #666;">{{ $comments->user->name ?? 'Πελάτης' }} — {{ $comments->created_at }}</small>
+            </div>
+        @empty
+            <p>Δεν υπάρχουν σχόλια ακόμα.</p>
+        @endforelse
+    </fieldset>
+
+    <fieldset>
+        <legend>Προσθήκη σχολίου</legend>
+        <form action="/ticket/{{ $ticket->uuid }}/comment" method="POST">
+            @csrf
+            <div class="field-row-stacked" style="margin-bottom: 8px;">
+                <textarea name="body" rows="3" required></textarea>
+            </div>
+            <div style="text-align: right;">
+                <button type="submit">Αποστολή</button>
+            </div>
+        </form>
+    </fieldset>
+
+@endsection
