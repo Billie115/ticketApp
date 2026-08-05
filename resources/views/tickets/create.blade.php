@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.xp')
 
 @section('title', 'Υποβολή Αιτήματος')
 

@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.xp')
 
 @section('title', 'Διαχείριση ' . $ticket->tracking_code)
 
@@ -17,6 +17,9 @@
                 </div>
             </div>
         @endif
+        <div style="margin-bottom: 10px;">
+            <a href="/staff/tickets">← Πίσω στη λίστα</a>
+        </div>
     <fieldset style="margin-bottom: 16px;">
         <legend>Στοιχεία</legend>
         <p><strong>Τίτλος:</strong> {{ $ticket->title }}</p>
